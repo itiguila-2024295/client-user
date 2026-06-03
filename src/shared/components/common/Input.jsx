@@ -3,14 +3,14 @@ import { COLORS, SPACING, FONT_SIZE} from '../../constants/theme';
 
 const Input = ({ label, error, ...props }) => {
     return (
-        <View style={style.container}>
-            {label && <Text style={style.label}>{label}</Text>}
+        <View style={styles.container}>
+            {label && <Text style={styles.label}>{label}</Text>}
             <TextInput 
                 style={[styles.input, error && styles.inputError]}
                 placeholderTextColor={COLORS.secondary}
                 {...props} 
             />
-            {error && <Text style={style.errorText}>{error}</Text>}
+            {error && <Text style={styles.errorText}>{error}</Text>}
         </View>
     )
 }
@@ -45,3 +45,5 @@ const styles = StyleSheet.create({
         marginTop: SPACING.xs,
     },
 });
+
+export default Input;
