@@ -7,25 +7,34 @@ import {
     Platform,
     ScrollView,
     Alert
-} from 'react-native';
+} from "react-native";
 
-import { useForm, Controller } from 'react-hook-form';
-import { COLORS, SPACING, FONT_SIZE } from '../../../shared/constants/theme';
-import Input from '../../../shared/components/common/Input';
-import Button from '../../../shared/components/common/Button';
+import { useForm, Controller } from "react-hook-form";
+import { COLORS, SPACING, FONT_SIZE } from "../../../shared/constants/theme";
+import Input from "../../../shared/components/common/Input";
+import Button from "../../../shared/components/common/Button";
+import { useAuth } from "../hooks/useAuth";
+
 import kinalSportsLogo from "../../../../assets/kinal_sports1.png"
 
-
 const LoginScreen = ({ navigation }) => {
+    const { handleLogin, loading } = useAuth();
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             emailOrUsername: "",
             password: ""
         }
-    });
+    })
 
-    const onSubmit = (data) => {
-
+    const onSubmit = async (data) => {
+        try {
+            await handleLogin(data)
+        } catch (error) {
+            console.error(error);
+            const message =
+                error.response?.data?.message || "Error al iniciar sesión"
+            Alert.alert("Error", message)
+        }
     }
 
     return (
@@ -33,32 +42,63 @@ const LoginScreen = ({ navigation }) => {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.container}
         >
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.header}>
                     <Image
                         source={kinalSportsLogo}
                         style={styles.logo}
                         resizeMode="contain"
                     />
-                    <Text style={styles.subtitle}> Bienvenido de Nuevo </Text>
-                    <View style={styles.form}>
-                        <Controller
-                            control={control}
-                            rules={{ required: "Email o usuario requerido" }}
-                            render={({ field: { onChange, value } }) => (
-                                <Input
-                                    label="Email o Usuario"
-                                    placeholder="correo@ejemplo.com o usuario"
-                                    onChangeText={onChange}
-                                    value={value}
-                                    autoCapitalize="none"
-                                    error={errors.emailOrUsername?.message}
-                                />
-                            )}
-                            name="emailOrUsername"
-                        />
-                    </View>
+                    <Text style={styles.subtitle}>Bienvenido de nuevo</Text>
+                </View>
 
+                <View style={styles.form}>
+                    <Controller
+                        control={control}
+                        rules={{ required: "Email o usuario requerido" }}
+                        render={({ field: { onChange, value } }) => (
+                            <Input
+                                label="Email o Usuario"
+                                placeholder="correo@ejemplo.com o usuario"
+                                onChangeText={onChange}
+                                value={value}
+                                autoCapitalize="none"
+                                error={errors.emailOrUsername?.message}
+                            />
+                        )}
+                        name="emailOrUsername"
+                    />
+                    <Controller
+                        control={control}
+                        rules={{ required: "Contraseña requerida" }}
+                        render={({ field: { onChange, value } }) => (
+                            <Input
+                                label="Contraseña"
+                                placeholder="••••••••"
+                                secureTextEntry
+                                onChangeText={onChange}
+                                value={value}
+                                error={errors.password?.message}
+                            />
+                        )}
+                        name="password"
+                    />
+
+                    <Button
+                        title="Iniciar Sesión"
+                        onPress={handleSubmit(onSubmit)}
+                        style={styles.button}
+                    />
+
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>¿No tienes cuenta? </Text>
+                        <Text
+                            style={styles.link}
+                            onPress={() => navigation.navigate("Register")}
+                        >
+                            Regístrate
+                        </Text>
+                    </View>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -110,6 +150,5 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
 });
-
 
 export default LoginScreen;
